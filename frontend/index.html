@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>BB Stock</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <div class="header">
+      <div class="header-content">
+        <div class="header-logo">🧋</div>
+        <div class="header-text">
+          <h1>BB Stock</h1>
+          <p>ระบบจัดการสต็อกสินค้า</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="greeting">
+        <p class="greeting-date" id="current-date"></p>
+        <p class="greeting-text">สวัสดีครับ 👋</p>
+      </div>
+
+      <div class="menu-grid">
+        <div class="menu-card" onclick="location.href='pages/import.html'">
+          <div class="menu-icon">📋</div>
+          <div class="menu-label">เพิ่มรายการสินค้า</div>
+          <div class="menu-sub">Import Excel</div>
+        </div>
+        <div class="menu-card" onclick="location.href='pages/stock.html'">
+          <div class="menu-icon">📦</div>
+          <div class="menu-label">ระบบสต็อกสินค้า</div>
+          <div class="menu-sub">นับสต็อก</div>
+        </div>
+        <div class="menu-card" onclick="location.href='pages/pos.html'">
+          <div class="menu-icon">🖥️</div>
+          <div class="menu-label">สินค้าระบบ POS</div>
+          <div class="menu-sub">บันทึก POS</div>
+        </div>
+        <div class="menu-card" onclick="location.href='pages/report.html'">
+          <div class="menu-icon">📊</div>
+          <div class="menu-label">รายงาน</div>
+          <div class="menu-sub">Reports</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="utils/app.js"></script>
+</body>
+</html>
