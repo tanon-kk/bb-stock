@@ -38,6 +38,15 @@ let pendingProducts = [];
 function handleFileSelect(input) {
   const file = input.files[0];
   if (!file) return;
+
+  const allowed = ['.xlsx','.xls','.xlsm','.xlsb','.csv','.ods'];
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) {
+    showToast('⚠️ รองรับไฟล์ Excel และ CSV เท่านั้นครับ');
+    input.value = '';
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = function(e) {
     const data = new Uint8Array(e.target.result);
