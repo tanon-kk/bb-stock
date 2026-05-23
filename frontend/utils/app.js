@@ -49,27 +49,73 @@ function handleFileSelect(input) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
 
-    pendingProducts = [];
-    rows.forEach((row, i) => {
-      if (i === 0) return;
-      if (!row[1]) return;
-      pendingProducts.push({
-        id: row[0] || i,
-        name: String(row[1]).trim(),
-        unit1: row[2] ? String(row[2]).trim() : '',
-        unit2: row[3] ? String(row[3]).trim() : '',
-        unit3: row[4] ? String(row[4]).trim() : '',
-      });
-    });
+      // หา sheet ที่ถูกต้อง — ฟอร์มNew ก่อน ถ้าไม่มีใช้ sheet แรก
+      let sheetName = workbook.SheetNames[0];
+      const preferred = ['ฟอร์มNew', 'ฟอร์มnew', 'form', 'สินค้า', 'Sheet1'];
+      for (const s of workbook.SheetNames) {
+        if (preferred.some(p => s.toLowerCase().includes(p.toLowerCase()))) {
+          sheetName = s;
+          break;
+        }
+      }
 
-    document.getElementById('file-name').textContent = '📄 ' + file.name;
-    document.getElementById('file-count').textContent = 'พบ ' + pendingProducts.length + ' รายการสินค้า';
-    document.getElementById('file-preview').classList.remove('hidden');
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+      pendingProducts = [];
+
+      // วิเคราะห์ว่า header แถวไหน และข้อมูลเริ่มแถวไหน
+      let dataStartRow = 0;
+      for (let i = 0; i < Math.min(rows.length, 10); i++) {
+        const row = rows[i];
+        // ถ้าแถวนี้มีตัวเลขในคอลัมน์แรก = เริ่มข้อมูลแล้ว
+        if (row[0] && typeof row[0] === 'number' && row[1]) {
+          dataStartRow = i;
+          break;
+        }
+      }
+
+      // อ่านข้อมูลจริง
+      for (let i = dataStartRow; i < rows.length; i++) {
+        const row = rows[i];
+        const id = row[0];
+        const name = String(row[1] || '').trim();
+
+        if (!id || !name || typeof id !== 'number') continue;
+
+        // ดึงหน่วยจากคอลัมน์ D(3), F(5), H(7)
+        const unit1 = String(row[3] || '').trim();
+        const unit2 = String(row[5] || '').trim();
+        const unit3 = String(row[7] || '').trim();
+
+        pendingProducts.push({
+          id: Math.round(id),
+          name: name,
+          unit1: unit1,
+          unit2: unit2,
+          unit3: unit3,
+        });
+      }
+
+      if (pendingProducts.length === 0) {
+        showToast('⚠️ ไม่พบรายการสินค้าในไฟล์นี้ครับ');
+        input.value = '';
+        return;
+      }
+
+      document.getElementById('file-name').textContent = '📄 ' + file.name;
+      document.getElementById('file-count').textContent =
+        'พบ ' + pendingProducts.length + ' รายการสินค้า (Sheet: ' + sheetName + ')';
+      document.getElementById('file-preview').classList.remove('hidden');
+
+    } catch(err) {
+      showToast('⚠️ เกิดข้อผิดพลาด: ' + err.message);
+      input.value = '';
+    }
   };
   reader.readAsArrayBuffer(file);
 }
