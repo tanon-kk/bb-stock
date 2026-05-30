@@ -72,11 +72,6 @@ function handleFileSelect(input) {
               dataStartRow = i;
               break;
             }
-            // กรณี header แถวแรกไม่ใช่ตัวเลข ให้เริ่มแถวถัดไป
-            if (i > 0 && rows[i][0] && typeof rows[i][0] === 'number') {
-              dataStartRow = i;
-              break;
-            }
           }
 
         const items = [];
