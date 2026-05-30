@@ -60,19 +60,17 @@ function handleFileSelect(input) {
       pendingStock = [];
       pendingConsumable = [];
 
-      // อ่านทุก sheet
       workbook.SheetNames.forEach(sheetName => {
         const sheet = workbook.Sheets[sheetName];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-        // หาแถวที่เริ่มข้อมูลจริง
         let dataStartRow = 0;
-          for (let i = 0; i < Math.min(rows.length, 10); i++) {
-            if (rows[i][0] && typeof rows[i][0] === 'number' && rows[i][1]) {
-              dataStartRow = i;
-              break;
-            }
+        for (let i = 0; i < Math.min(rows.length, 10); i++) {
+          if (rows[i][0] && typeof rows[i][0] === 'number') {
+            dataStartRow = i;
+            break;
           }
+        }
 
         const items = [];
         for (let i = dataStartRow; i < rows.length; i++) {
@@ -81,21 +79,15 @@ function handleFileSelect(input) {
           const name = String(row[1] || '').trim();
           if (!id || !name || typeof id !== 'number') continue;
 
-          // ดึงหน่วยจาก col C, D, E (index 2, 3, 4)
-          const unit1 = String(row[2] || '').trim();
-          const unit2 = String(row[3] || '').trim();
-          const unit3 = String(row[4] || '').trim();
-
           items.push({
             id: Math.round(id),
             name: name,
-            unit1: unit1,
-            unit2: unit2,
-            unit3: unit3,
+            unit1: String(row[2] || '').trim(),
+            unit2: String(row[3] || '').trim(),
+            unit3: String(row[4] || '').trim(),
           });
         }
 
-        // แยก sheet ตามชื่อ
         const isConsumable = sheetName.includes('สิ้นเปลือง') ||
                              sheetName.includes('วัสดุ') ||
                              sheetName.toLowerCase().includes('consumable');
@@ -108,7 +100,6 @@ function handleFileSelect(input) {
       });
 
       const total = pendingStock.length + pendingConsumable.length;
-
       if (total === 0) {
         showToast('⚠️ ไม่พบรายการสินค้าในไฟล์นี้ครับ');
         input.value = '';
@@ -172,26 +163,12 @@ function hideUploadPopup() {
 function cancelPopup() { hideUploadPopup(); }
 
 // ===== RENDER LIST =====
-function renderList(type) {
-  // stock = รายการสินค้า, pos = วัสดุสิ้นเปลือง
-  const dataType = type === 'pos' ? 'consumable' : 'stock';
-  const products = getProducts(dataType);
-  const listEl = document.getElementById(type + '-list');
-  if (!listEl) return;
-
-  if (products.length === 0) {
-    listEl.innerHTML = '<p class="empty-state">ยังไม่มีรายการสินค้า<br>กรุณากด "เพิ่มรายการสินค้า" ก่อนครับ</p>';
-    return;
-  }
-
-  const session = getSessionData();
-
-  listEl.innerHTML = products.map(p => {
-    const key = type + '_' + p.id;
+function renderItems(items, groupType, type, session) {
+  return items.map(p => {
+    const key = type + '_' + groupType + '_' + p.id;
     const saved = session[key];
     const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
 
-    // แสดงจำนวนที่กรอกแล้ว
     let savedText = '';
     if (hasSaved) {
       const parts = [];
@@ -202,7 +179,7 @@ function renderList(type) {
     }
 
     return `
-      <div class="item-row" onclick="openEntry('${type}', '${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
+      <div class="item-row" onclick="openEntry('${type}', '${groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
         <span class="item-no">${p.id}</span>
         <div class="item-name-wrap">
           <span class="item-name">${p.name}</span>
@@ -214,49 +191,82 @@ function renderList(type) {
   }).join('');
 }
 
+function renderList(type) {
+  const stock = getProducts('stock');
+  const consumable = getProducts('consumable');
+  const listEl = document.getElementById(type + '-list');
+  if (!listEl) return;
+
+  if (stock.length === 0 && consumable.length === 0) {
+    listEl.innerHTML = '<p class="empty-state">ยังไม่มีรายการสินค้า<br>กรุณากด "เพิ่มรายการสินค้า" ก่อนครับ</p>';
+    return;
+  }
+
+  const session = getSessionData();
+
+  listEl.innerHTML = `
+    <div class="group-header">
+      <span class="group-icon">📦</span>
+      <span class="group-title">รายการสินค้า</span>
+      <span class="group-count">${stock.length}</span>
+    </div>
+    ${renderItems(stock, 'stock', type, session)}
+    <div class="group-header">
+      <span class="group-icon">🧻</span>
+      <span class="group-title">วัสดุสิ้นเปลือง</span>
+      <span class="group-count">${consumable.length}</span>
+    </div>
+    ${renderItems(consumable, 'consumable', type, session)}
+  `;
+}
+
 function filterList(type, keyword) {
-  const dataType = type === 'pos' ? 'consumable' : 'stock';
-  const products = getProducts(dataType);
+  const stock = getProducts('stock');
+  const consumable = getProducts('consumable');
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
   const session = getSessionData();
 
-  const filtered = keyword
-    ? products.filter(p =>
+  const filteredStock = keyword
+    ? stock.filter(p =>
         p.name.toLowerCase().includes(keyword.toLowerCase()) ||
         String(p.id).includes(keyword))
-    : products;
+    : stock;
 
-  if (filtered.length === 0) {
+  const filteredConsumable = keyword
+    ? consumable.filter(p =>
+        p.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        String(p.id).includes(keyword))
+    : consumable;
+
+  if (filteredStock.length === 0 && filteredConsumable.length === 0) {
     listEl.innerHTML = '<p class="empty-state">ไม่พบรายการที่ค้นหาครับ</p>';
     return;
   }
 
-  listEl.innerHTML = filtered.map(p => {
-    const key = type + '_' + p.id;
-    const saved = session[key];
-    const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
-
-    let savedText = '';
-    if (hasSaved) {
-      const parts = [];
-      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
-      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
-      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
-      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
-    }
-
-    return `
-      <div class="item-row" onclick="openEntry('${type}', '${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
-        <span class="item-no">${p.id}</span>
-        <div class="item-name-wrap">
-          <span class="item-name">${p.name}</span>
-          ${savedText}
-        </div>
-        <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
+  let html = '';
+  if (filteredStock.length > 0) {
+    html += `
+      <div class="group-header">
+        <span class="group-icon">📦</span>
+        <span class="group-title">รายการสินค้า</span>
+        <span class="group-count">${filteredStock.length}</span>
       </div>
+      ${renderItems(filteredStock, 'stock', type, session)}
     `;
-  }).join('');
+  }
+  if (filteredConsumable.length > 0) {
+    html += `
+      <div class="group-header">
+        <span class="group-icon">🧻</span>
+        <span class="group-title">วัสดุสิ้นเปลือง</span>
+        <span class="group-count">${filteredConsumable.length}</span>
+      </div>
+      ${renderItems(filteredConsumable, 'consumable', type, session)}
+    `;
+  }
+
+  listEl.innerHTML = html;
 }
 
 // ===== ENTRY MODAL =====
@@ -267,9 +277,8 @@ function openEntry(type, id, name, unit1, unit2, unit3) {
 
   document.getElementById('modal-title').textContent = name;
   document.getElementById('modal-subtitle').textContent =
-    type === 'stock' ? '📦 บันทึกสต็อกสินค้า' : '🛒 บันทึกวัสดุสิ้นเปลือง';
+    type === 'stock' ? '📦 บันทึกสต็อกสินค้า' : '🖥️ บันทึกระบบ POS';
 
-  // ตั้งค่า label และแสดง/ซ่อนตามหน่วยที่มี
   const groups = [
     { group: 'group-u1', label: 'label-u1', input: 'input-u1', unit: unit1 },
     { group: 'group-u2', label: 'label-u2', input: 'input-u2', unit: unit2 },
