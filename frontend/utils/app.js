@@ -16,24 +16,28 @@ function setCurrentDate() {
   if (el) el.textContent = now.toLocaleDateString('th-TH', options);
 }
 
-// ===== PRODUCTS =====
-function getProducts() {
-  return JSON.parse(localStorage.getItem('bb_products') || '[]');
-}
-function saveProducts(products) {
-  localStorage.setItem('bb_products', JSON.stringify(products));
+// ===== STORAGE =====
+function getProducts(type) {
+  const key = type === 'consumable' ? 'bb_consumable' : 'bb_products';
+  return JSON.parse(localStorage.getItem(key) || '[]');
 }
 
-// ===== SESSION DATA (ข้อมูลที่กรอกในรอบนี้) =====
+function saveProducts(type, products) {
+  const key = type === 'consumable' ? 'bb_consumable' : 'bb_products';
+  localStorage.setItem(key, JSON.stringify(products));
+}
+
 function getSessionData() {
   return JSON.parse(localStorage.getItem('bb_session') || '{}');
 }
+
 function saveSessionData(data) {
   localStorage.setItem('bb_session', JSON.stringify(data));
 }
 
 // ===== FILE IMPORT =====
-let pendingProducts = [];
+let pendingStock = [];
+let pendingConsumable = [];
 
 function handleFileSelect(input) {
   const file = input.files[0];
@@ -53,55 +57,59 @@ function handleFileSelect(input) {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
 
-      // หา sheet ที่ถูกต้อง — ฟอร์มNew ก่อน ถ้าไม่มีใช้ sheet แรก
-      let sheetName = workbook.SheetNames[0];
-      const preferred = ['ฟอร์มNew', 'ฟอร์มnew', 'form', 'สินค้า', 'Sheet1'];
-      for (const s of workbook.SheetNames) {
-        if (preferred.some(p => s.toLowerCase().includes(p.toLowerCase()))) {
-          sheetName = s;
-          break;
+      pendingStock = [];
+      pendingConsumable = [];
+
+      // อ่านทุก sheet
+      workbook.SheetNames.forEach(sheetName => {
+        const sheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+        // หาแถวที่เริ่มข้อมูลจริง
+        let dataStartRow = 0;
+        for (let i = 0; i < Math.min(rows.length, 10); i++) {
+          if (rows[i][0] && typeof rows[i][0] === 'number' && rows[i][1]) {
+            dataStartRow = i;
+            break;
+          }
         }
-      }
 
-      const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        const items = [];
+        for (let i = dataStartRow; i < rows.length; i++) {
+          const row = rows[i];
+          const id = row[0];
+          const name = String(row[1] || '').trim();
+          if (!id || !name || typeof id !== 'number') continue;
 
-      pendingProducts = [];
+          // ดึงหน่วยจาก col C, D, E (index 2, 3, 4)
+          const unit1 = String(row[2] || '').trim();
+          const unit2 = String(row[3] || '').trim();
+          const unit3 = String(row[4] || '').trim();
 
-      // วิเคราะห์ว่า header แถวไหน และข้อมูลเริ่มแถวไหน
-      let dataStartRow = 0;
-      for (let i = 0; i < Math.min(rows.length, 10); i++) {
-        const row = rows[i];
-        // ถ้าแถวนี้มีตัวเลขในคอลัมน์แรก = เริ่มข้อมูลแล้ว
-        if (row[0] && typeof row[0] === 'number' && row[1]) {
-          dataStartRow = i;
-          break;
+          items.push({
+            id: Math.round(id),
+            name: name,
+            unit1: unit1,
+            unit2: unit2,
+            unit3: unit3,
+          });
         }
-      }
 
-      // อ่านข้อมูลจริง
-      for (let i = dataStartRow; i < rows.length; i++) {
-        const row = rows[i];
-        const id = row[0];
-        const name = String(row[1] || '').trim();
+        // แยก sheet ตามชื่อ
+        const isConsumable = sheetName.includes('สิ้นเปลือง') ||
+                             sheetName.includes('วัสดุ') ||
+                             sheetName.toLowerCase().includes('consumable');
 
-        if (!id || !name || typeof id !== 'number') continue;
+        if (isConsumable) {
+          pendingConsumable = items;
+        } else {
+          pendingStock = items;
+        }
+      });
 
-        // ดึงหน่วยจากคอลัมน์ D(3), F(5), H(7)
-        const unit1 = String(row[3] || '').trim();
-        const unit2 = String(row[5] || '').trim();
-        const unit3 = String(row[7] || '').trim();
+      const total = pendingStock.length + pendingConsumable.length;
 
-        pendingProducts.push({
-          id: Math.round(id),
-          name: name,
-          unit1: unit1,
-          unit2: unit2,
-          unit3: unit3,
-        });
-      }
-
-      if (pendingProducts.length === 0) {
+      if (total === 0) {
         showToast('⚠️ ไม่พบรายการสินค้าในไฟล์นี้ครับ');
         input.value = '';
         return;
@@ -109,7 +117,7 @@ function handleFileSelect(input) {
 
       document.getElementById('file-name').textContent = '📄 ' + file.name;
       document.getElementById('file-count').textContent =
-        'พบ ' + pendingProducts.length + ' รายการสินค้า (Sheet: ' + sheetName + ')';
+        `พบสินค้า ${pendingStock.length} รายการ | วัสดุสิ้นเปลือง ${pendingConsumable.length} รายการ`;
       document.getElementById('file-preview').classList.remove('hidden');
 
     } catch(err) {
@@ -121,7 +129,7 @@ function handleFileSelect(input) {
 }
 
 function confirmUpload() {
-  if (pendingProducts.length === 0) return;
+  if (pendingStock.length === 0 && pendingConsumable.length === 0) return;
   showUploadPopup();
   let progress = 0;
   const interval = setInterval(() => {
@@ -130,21 +138,23 @@ function confirmUpload() {
     document.getElementById('progress-text').textContent = Math.min(progress, 100) + '%';
     if (progress >= 100) {
       clearInterval(interval);
-      saveProducts(pendingProducts);
-      // ล้าง session เดิมเมื่อ import ใหม่
+      saveProducts('stock', pendingStock);
+      saveProducts('consumable', pendingConsumable);
       localStorage.removeItem('bb_session');
-      pendingProducts = [];
+      pendingStock = [];
+      pendingConsumable = [];
       document.getElementById('file-preview').classList.add('hidden');
       document.getElementById('fileInput').value = '';
       hideUploadPopup();
-      showToast('✅ อัพโหลดสำเร็จ ' + getProducts().length + ' รายการ');
+      showToast(`✅ อัพโหลดสำเร็จ ${getProducts('stock').length + getProducts('consumable').length} รายการ`);
       navigateTo('dashboard');
     }
   }, 80);
 }
 
 function cancelUpload() {
-  pendingProducts = [];
+  pendingStock = [];
+  pendingConsumable = [];
   document.getElementById('file-preview').classList.add('hidden');
   document.getElementById('fileInput').value = '';
 }
@@ -163,7 +173,9 @@ function cancelPopup() { hideUploadPopup(); }
 
 // ===== RENDER LIST =====
 function renderList(type) {
-  const products = getProducts();
+  // stock = รายการสินค้า, pos = วัสดุสิ้นเปลือง
+  const dataType = type === 'pos' ? 'consumable' : 'stock';
+  const products = getProducts(dataType);
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
 
@@ -178,10 +190,24 @@ function renderList(type) {
     const key = type + '_' + p.id;
     const saved = session[key];
     const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
+
+    // แสดงจำนวนที่กรอกแล้ว
+    let savedText = '';
+    if (hasSaved) {
+      const parts = [];
+      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
+      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
+      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
+      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
+    }
+
     return `
-      <div class="item-row" onclick="openEntry('${type}', '${p.id}', '${p.name}', '${p.unit1}', '${p.unit2}', '${p.unit3}')">
+      <div class="item-row" onclick="openEntry('${type}', '${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
         <span class="item-no">${p.id}</span>
-        <span class="item-name">${p.name}${hasSaved ? ' <span style="color:#1D9E75;font-size:11px;">✓</span>' : ''}</span>
+        <div class="item-name-wrap">
+          <span class="item-name">${p.name}</span>
+          ${savedText}
+        </div>
         <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
       </div>
     `;
@@ -189,7 +215,8 @@ function renderList(type) {
 }
 
 function filterList(type, keyword) {
-  const products = getProducts();
+  const dataType = type === 'pos' ? 'consumable' : 'stock';
+  const products = getProducts(dataType);
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
   const session = getSessionData();
@@ -209,10 +236,23 @@ function filterList(type, keyword) {
     const key = type + '_' + p.id;
     const saved = session[key];
     const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
+
+    let savedText = '';
+    if (hasSaved) {
+      const parts = [];
+      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
+      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
+      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
+      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
+    }
+
     return `
-      <div class="item-row" onclick="openEntry('${type}', '${p.id}', '${p.name}', '${p.unit1}', '${p.unit2}', '${p.unit3}')">
+      <div class="item-row" onclick="openEntry('${type}', '${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
         <span class="item-no">${p.id}</span>
-        <span class="item-name">${p.name}${hasSaved ? ' <span style="color:#1D9E75;font-size:11px;">✓</span>' : ''}</span>
+        <div class="item-name-wrap">
+          <span class="item-name">${p.name}</span>
+          ${savedText}
+        </div>
         <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
       </div>
     `;
@@ -227,21 +267,29 @@ function openEntry(type, id, name, unit1, unit2, unit3) {
 
   document.getElementById('modal-title').textContent = name;
   document.getElementById('modal-subtitle').textContent =
-    type === 'stock' ? '📦 บันทึกสต็อกสินค้า' : '🖥️ บันทึกระบบ POS';
+    type === 'stock' ? '📦 บันทึกสต็อกสินค้า' : '🛒 บันทึกวัสดุสิ้นเปลือง';
 
-  // ตั้งค่า label หน่วย
-  document.getElementById('label-u1').textContent = unit1 || 'หน่วย 1';
-  document.getElementById('label-u2').textContent = unit2 || 'หน่วย 2';
-  document.getElementById('label-u3').textContent = unit3 || 'หน่วย 3';
+  // ตั้งค่า label และแสดง/ซ่อนตามหน่วยที่มี
+  const groups = [
+    { group: 'group-u1', label: 'label-u1', input: 'input-u1', unit: unit1 },
+    { group: 'group-u2', label: 'label-u2', input: 'input-u2', unit: unit2 },
+    { group: 'group-u3', label: 'label-u3', input: 'input-u3', unit: unit3 },
+  ];
 
-  // แสดง/ซ่อน column ตามที่มี
-  document.getElementById('group-u2').style.display = unit2 ? 'flex' : 'none';
-  document.getElementById('group-u3').style.display = unit3 ? 'flex' : 'none';
-
-  // เคลียร์ input
-  document.getElementById('input-u1').value = '';
-  document.getElementById('input-u2').value = '';
-  document.getElementById('input-u3').value = '';
+  groups.forEach(g => {
+    const groupEl = document.getElementById(g.group);
+    const labelEl = document.getElementById(g.label);
+    const inputEl = document.getElementById(g.input);
+    if (g.unit && g.unit.trim() !== '') {
+      groupEl.style.display = 'flex';
+      labelEl.textContent = g.unit;
+      inputEl.value = '';
+      inputEl.placeholder = '0';
+    } else {
+      groupEl.style.display = 'none';
+      inputEl.value = '';
+    }
+  });
 
   document.getElementById('entry-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('input-u1').focus(), 100);
@@ -262,14 +310,11 @@ function saveEntry() {
     return;
   }
 
-  // แปลง fraction เช่น 2/5 → 100 (สำหรับ ml)
-  function parseVal(val, unit) {
+  function parseVal(val) {
     if (!val) return 0;
-    if (val.includes('/')) {
-      const parts = val.split('/');
-      const num = parseFloat(parts[0]) || 0;
-      const den = parseFloat(parts[1]) || 1;
-      return Math.round((num / den) * parseFloat(unit)) || 0;
+    if (String(val).includes('/')) {
+      const parts = String(val).split('/');
+      return (parseFloat(parts[0]) || 0) / (parseFloat(parts[1]) || 1);
     }
     return parseFloat(val) || 0;
   }
@@ -278,29 +323,15 @@ function saveEntry() {
   const key = currentEntry.type + '_' + currentEntry.id;
   const existing = session[key] || { v1: 0, v2: 0, v3: 0 };
 
-  // +บวกกับของเดิม
-  const n1 = (parseFloat(v1) || 0);
-  const n2 = (parseFloat(v2) || 0);
-  const n3Raw = v3;
-
-  // สำหรับ v3 ให้แปลง fraction แล้วบวก
-  let n3 = 0;
-  if (n3Raw.includes('/')) {
-    const parts = n3Raw.split('/');
-    n3 = (parseFloat(parts[0]) || 0) / (parseFloat(parts[1]) || 1);
-  } else {
-    n3 = parseFloat(n3Raw) || 0;
-  }
-
   session[key] = {
     id: currentEntry.id,
     name: currentEntry.name,
     unit1: currentEntry.unit1,
     unit2: currentEntry.unit2,
     unit3: currentEntry.unit3,
-    v1: (existing.v1 || 0) + n1,
-    v2: (existing.v2 || 0) + n2,
-    v3: (existing.v3 || 0) + n3,
+    v1: (existing.v1 || 0) + parseVal(v1),
+    v2: (existing.v2 || 0) + parseVal(v2),
+    v3: (existing.v3 || 0) + parseVal(v3),
     type: currentEntry.type,
     updatedAt: new Date().toISOString(),
   };
