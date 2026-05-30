@@ -4,6 +4,18 @@ function navigateTo(page) {
   const target = document.getElementById('view-' + page);
   if (target) target.classList.add('active');
   window.scrollTo(0, 0);
+
+  // Change theme page
+  document.body.className = '';
+  const themeMap = {
+    dashboard: 'theme-stock',
+    stock:     'theme-stock',
+    import:    'theme-import',
+    pos:       'theme-pos',
+    report:    'theme-report',
+  };
+  document.body.classList.add(themeMap[page] || 'theme-stock');
+
   if (page === 'stock') renderList('stock');
   if (page === 'pos') renderList('pos');
 }
