@@ -90,11 +90,11 @@
           <div class="upload-icon-big">
             <i class="fa-solid fa-cloud-arrow-up"></i>
           </div>
-          <p class="upload-desc">อัพโหลดไฟล์ Excel (.xlsx) ที่มีคอลัมน์<br>ลำดับ, รายการสินค้า, หน่วยนับ</p>
+          <p class="upload-desc">อัพโหลดไฟล์สต็อคสินค้า<br>(.xlsx .xls .xlsm .csv)</p>
           <label class="upload-btn" for="fileInput">
             <i class="fa-solid fa-file-arrow-up"></i> เลือกไฟล์ Excel
           </label>
-          <input type="file" id="fileInput" accept=".xlsx,.csv" onchange="handleFileSelect(this)">
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.ods" onchange="handleFileSelect(this)">
           <div id="file-preview" class="file-preview hidden">
             <div class="file-info">
               <i class="fa-solid fa-file-excel"></i>
