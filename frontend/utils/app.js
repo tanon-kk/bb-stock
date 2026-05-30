@@ -67,12 +67,17 @@ function handleFileSelect(input) {
 
         // หาแถวที่เริ่มข้อมูลจริง
         let dataStartRow = 0;
-        for (let i = 0; i < Math.min(rows.length, 10); i++) {
-          if (rows[i][0] && typeof rows[i][0] === 'number' && rows[i][1]) {
-            dataStartRow = i;
-            break;
+          for (let i = 0; i < Math.min(rows.length, 10); i++) {
+            if (rows[i][0] && typeof rows[i][0] === 'number' && rows[i][1]) {
+              dataStartRow = i;
+              break;
+            }
+            // กรณี header แถวแรกไม่ใช่ตัวเลข ให้เริ่มแถวถัดไป
+            if (i > 0 && rows[i][0] && typeof rows[i][0] === 'number') {
+              dataStartRow = i;
+              break;
+            }
           }
-        }
 
         const items = [];
         for (let i = dataStartRow; i < rows.length; i++) {
