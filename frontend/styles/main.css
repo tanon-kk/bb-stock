@@ -51,7 +51,19 @@ body {
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 16px rgba(220,100,130,0.10);
+  transition: background 0.3s ease;
 }
+
+/* Theme สีแต่ละหน้า */
+body.theme-stock .header-section   { background: rgba(255,182,198,0.55); }
+body.theme-import .header-section  { background: rgba(182,240,210,0.55); }
+body.theme-pos .header-section     { background: rgba(182,220,255,0.55); }
+body.theme-report .header-section  { background: rgba(255,230,150,0.55); }
+
+body.theme-stock  { background: linear-gradient(160deg,#ffc8d8 0%,#fff0f3 45%,#ffe8d6 100%); }
+body.theme-import { background: linear-gradient(160deg,#c8f0dc 0%,#f0fff6 45%,#e8ffd6 100%); }
+body.theme-pos    { background: linear-gradient(160deg,#c8dcff 0%,#f0f4ff 45%,#e8f0ff 100%); }
+body.theme-report { background: linear-gradient(160deg,#ffe8a0 0%,#fffaf0 45%,#fff0c8 100%); }
 
 .header-content {
   display: flex;
