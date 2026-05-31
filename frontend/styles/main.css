@@ -57,12 +57,12 @@ body {
 /* Theme สีแต่ละหน้า */
 body.theme-stock .header-section   { background: rgba(255,182,198,0.55); }
 body.theme-import .header-section  { background: rgba(182,240,210,0.55); }
-body.theme-pos .header-section     { background: rgba(182,220,255,0.55); }
+body.theme-pos .header-section { background: linear-gradient(135deg, rgba(150,200,255,0.75), rgba(180,220,255,0.55)); border-bottom: 1px solid rgba(255,255,255,0.70); }
 body.theme-report .header-section  { background: rgba(255,230,150,0.55); }
 
 body.theme-stock  { background: linear-gradient(160deg,#ffc8d8 0%,#ffc8d8 100%) fixed; }
 body.theme-import { background: linear-gradient(160deg,#c8f0dc 0%,#c8f0dc 100%) fixed; }
-body.theme-pos    { background: linear-gradient(160deg,#c8dcff 0%,#c8dcff 100%) fixed; }
+body.theme-pos    { background: linear-gradient(160deg,#b8d4ff 0%,#deeeff 50%,#e8f4ff 100%) fixed; }
 body.theme-report { background: linear-gradient(160deg,#ffe8a0 0%,#ffe8a0 100%) fixed; }
 .header-content {
   display: flex;
@@ -242,6 +242,15 @@ body.theme-report { background: linear-gradient(160deg,#ffe8a0 0%,#ffe8a0 100%) 
 .icon-sphere.rose    { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
 .icon-sphere.emerald { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
 .icon-sphere.amber   { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
+
+/* Icon sphere default */
+.icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
+
+/* Icon sphere theme page */
+body.theme-import .icon-sphere { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
+body.theme-pos    .icon-sphere { background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0; }
+body.theme-report .icon-sphere { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
+body.theme-stock  .icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
 
 /* ===== PAGE HEADER ===== */
 .page-header {
