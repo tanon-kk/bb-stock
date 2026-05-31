@@ -206,79 +206,94 @@ function renderItems(items, groupType, type, session) {
 function renderList(type) {
   const stock = getProducts('stock');
   const consumable = getProducts('consumable');
+  const allProducts = [
+    ...stock.map(p => ({ ...p, groupType: 'stock' })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable' }))
+  ];
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
 
-  if (stock.length === 0 && consumable.length === 0) {
+  if (allProducts.length === 0) {
     listEl.innerHTML = '<p class="empty-state">ยังไม่มีรายการสินค้า<br>กรุณากด "เพิ่มรายการสินค้า" ก่อนครับ</p>';
     return;
   }
 
   const session = getSessionData();
 
-  listEl.innerHTML = `
-    <div class="group-header">
-      <span class="group-icon">📦</span>
-      <span class="group-title">รายการสินค้า</span>
-      <span class="group-count">${stock.length}</span>
-    </div>
-    ${renderItems(stock, 'stock', type, session)}
-    <div class="group-header">
-      <span class="group-icon">🧻</span>
-      <span class="group-title">วัสดุสิ้นเปลือง</span>
-      <span class="group-count">${consumable.length}</span>
-    </div>
-    ${renderItems(consumable, 'consumable', type, session)}
-  `;
+  listEl.innerHTML = allProducts.map(p => {
+    const key = type + '_' + p.groupType + '_' + p.id;
+    const saved = session[key];
+    const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
+
+    let savedText = '';
+    if (hasSaved) {
+      const parts = [];
+      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
+      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
+      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
+      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
+    }
+
+    return `
+      <div class="item-row" onclick="openEntry('${type}', '${p.groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
+        <span class="item-no">${p.id}</span>
+        <div class="item-name-wrap">
+          <span class="item-name">${p.name}</span>
+          ${savedText}
+        </div>
+        <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
+      </div>
+    `;
+  }).join('');
 }
 
 function filterList(type, keyword) {
   const stock = getProducts('stock');
   const consumable = getProducts('consumable');
+  const allProducts = [
+    ...stock.map(p => ({ ...p, groupType: 'stock' })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable' }))
+  ];
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
   const session = getSessionData();
 
-  const filteredStock = keyword
-    ? stock.filter(p =>
+  const filtered = keyword
+    ? allProducts.filter(p =>
         p.name.toLowerCase().includes(keyword.toLowerCase()) ||
         String(p.id).includes(keyword))
-    : stock;
+    : allProducts;
 
-  const filteredConsumable = keyword
-    ? consumable.filter(p =>
-        p.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        String(p.id).includes(keyword))
-    : consumable;
-
-  if (filteredStock.length === 0 && filteredConsumable.length === 0) {
+  if (filtered.length === 0) {
     listEl.innerHTML = '<p class="empty-state">ไม่พบรายการที่ค้นหาครับ</p>';
     return;
   }
 
-  let html = '';
-  if (filteredStock.length > 0) {
-    html += `
-      <div class="group-header">
-        <span class="group-icon">📦</span>
-        <span class="group-title">รายการสินค้า</span>
-        <span class="group-count">${filteredStock.length}</span>
-      </div>
-      ${renderItems(filteredStock, 'stock', type, session)}
-    `;
-  }
-  if (filteredConsumable.length > 0) {
-    html += `
-      <div class="group-header">
-        <span class="group-icon">🧻</span>
-        <span class="group-title">วัสดุสิ้นเปลือง</span>
-        <span class="group-count">${filteredConsumable.length}</span>
-      </div>
-      ${renderItems(filteredConsumable, 'consumable', type, session)}
-    `;
-  }
+  listEl.innerHTML = filtered.map(p => {
+    const key = type + '_' + p.groupType + '_' + p.id;
+    const saved = session[key];
+    const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
 
-  listEl.innerHTML = html;
+    let savedText = '';
+    if (hasSaved) {
+      const parts = [];
+      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
+      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
+      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
+      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
+    }
+
+    return `
+      <div class="item-row" onclick="openEntry('${type}', '${p.groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
+        <span class="item-no">${p.id}</span>
+        <div class="item-name-wrap">
+          <span class="item-name">${p.name}</span>
+          ${savedText}
+        </div>
+        <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
+      </div>
+    `;
+  }).join('');
 }
 
 // ===== ENTRY MODAL =====
