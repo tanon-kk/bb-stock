@@ -5,7 +5,6 @@ function navigateTo(page) {
   if (target) target.classList.add('active');
   window.scrollTo(0, 0);
 
-  // Change theme page
   document.body.className = '';
   const themeMap = {
     dashboard: 'theme-stock',
@@ -175,34 +174,6 @@ function hideUploadPopup() {
 function cancelPopup() { hideUploadPopup(); }
 
 // ===== RENDER LIST =====
-function renderItems(items, groupType, type, session) {
-  return items.map(p => {
-    const key = type + '_' + groupType + '_' + p.id;
-    const saved = session[key];
-    const hasSaved = saved && (saved.v1 || saved.v2 || saved.v3);
-
-    let savedText = '';
-    if (hasSaved) {
-      const parts = [];
-      if (saved.v1) parts.push(`${saved.v1} ${p.unit1}`);
-      if (saved.v2) parts.push(`${saved.v2} ${p.unit2}`);
-      if (saved.v3) parts.push(`${saved.v3} ${p.unit3}`);
-      savedText = `<div class="item-saved">${parts.join(' | ')}</div>`;
-    }
-
-    return `
-      <div class="item-row" onclick="openEntry('${type}', '${groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
-        <span class="item-no">${p.id}</span>
-        <div class="item-name-wrap">
-          <span class="item-name">${p.name}</span>
-          ${savedText}
-        </div>
-        <button class="item-btn">${hasSaved ? 'แก้ไข' : 'บันทึก'}</button>
-      </div>
-    `;
-  }).join('');
-}
-
 function renderList(type) {
   const stock = getProducts('stock');
   const consumable = getProducts('consumable');
@@ -386,11 +357,11 @@ function showToast(msg) {
     toast.id = 'toast';
     toast.style.cssText = `
       position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
-      background:rgba(255,255,255,0.92); color:#a0435a;
+      background:rgba(255,255,255,0.92); color:var(--theme-text);
       padding:10px 22px; border-radius:999px;
       font-family:var(--font,Kanit); font-size:14px; font-weight:600;
-      box-shadow:0 4px 20px rgba(220,100,130,0.25);
-      border:1px solid rgba(255,180,200,0.5);
+      box-shadow:0 4px 20px rgba(0,0,0,0.15);
+      border:1px solid rgba(255,255,255,0.80);
       z-index:9999; transition:opacity 0.3s ease;
       white-space:nowrap;
     `;
