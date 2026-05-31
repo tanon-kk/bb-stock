@@ -177,10 +177,14 @@ function cancelPopup() { hideUploadPopup(); }
 function renderList(type) {
   const stock = getProducts('stock');
   const consumable = getProducts('consumable');
+
+  // ลำดับต่อเนื่อง
+  let seq = 0;
   const allProducts = [
-    ...stock.map(p => ({ ...p, groupType: 'stock' })),
-    ...consumable.map(p => ({ ...p, groupType: 'consumable' }))
+    ...stock.map(p => ({ ...p, groupType: 'stock', seq: ++seq })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable', seq: ++seq }))
   ];
+
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
 
@@ -188,6 +192,10 @@ function renderList(type) {
     listEl.innerHTML = '<p class="empty-state">ยังไม่มีรายการสินค้า<br>กรุณากด "เพิ่มรายการสินค้า" ก่อนครับ</p>';
     return;
   }
+
+  // แสดงจำนวนทั้งหมด
+  const countEl = document.getElementById(type + '-count');
+  if (countEl) countEl.textContent = `ทั้งหมด ${allProducts.length} รายการ`;
 
   const session = getSessionData();
 
@@ -207,7 +215,7 @@ function renderList(type) {
 
     return `
       <div class="item-row" onclick="openEntry('${type}', '${p.groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
-        <span class="item-no">${p.id}</span>
+        <span class="item-no">${p.seq}</span>
         <div class="item-name-wrap">
           <span class="item-name">${p.name}</span>
           ${savedText}
@@ -221,10 +229,13 @@ function renderList(type) {
 function filterList(type, keyword) {
   const stock = getProducts('stock');
   const consumable = getProducts('consumable');
+
+  let seq = 0;
   const allProducts = [
-    ...stock.map(p => ({ ...p, groupType: 'stock' })),
-    ...consumable.map(p => ({ ...p, groupType: 'consumable' }))
+    ...stock.map(p => ({ ...p, groupType: 'stock', seq: ++seq })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable', seq: ++seq }))
   ];
+
   const listEl = document.getElementById(type + '-list');
   if (!listEl) return;
   const session = getSessionData();
@@ -232,8 +243,14 @@ function filterList(type, keyword) {
   const filtered = keyword
     ? allProducts.filter(p =>
         p.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        String(p.id).includes(keyword))
+        String(p.seq).includes(keyword))
     : allProducts;
+
+  // แสดงจำนวน
+  const countEl = document.getElementById(type + '-count');
+  if (countEl) countEl.textContent = keyword
+    ? `พบ ${filtered.length} / ${allProducts.length} รายการ`
+    : `ทั้งหมด ${allProducts.length} รายการ`;
 
   if (filtered.length === 0) {
     listEl.innerHTML = '<p class="empty-state">ไม่พบรายการที่ค้นหาครับ</p>';
@@ -256,7 +273,7 @@ function filterList(type, keyword) {
 
     return `
       <div class="item-row" onclick="openEntry('${type}', '${p.groupType}_${p.id}', \`${p.name}\`, '${p.unit1}', '${p.unit2}', '${p.unit3}')">
-        <span class="item-no">${p.id}</span>
+        <span class="item-no">${p.seq}</span>
         <div class="item-name-wrap">
           <span class="item-name">${p.name}</span>
           ${savedText}
