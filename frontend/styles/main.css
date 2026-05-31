@@ -238,22 +238,113 @@ body.theme-report { background: linear-gradient(160deg,#ffe8a0 0%,#ffe8a0 100%) 
   font-size: 15px;
 }
 
-.icon-sphere.sky     { background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0; }
-.icon-sphere.rose    { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
-.icon-sphere.emerald { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
-.icon-sphere.amber   { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
+/* ===== THEME VARIABLES ===== */
+:root {
+  --theme-bg1: #ffc8d8;
+  --theme-bg2: #fff0f3;
+  --theme-bg3: #ffe8d6;
+  --theme-icon-bg: linear-gradient(145deg,#ffdde6,#ffb8cc);
+  --theme-icon-color: #c03060;
+  --theme-btn-bg: linear-gradient(135deg,#ffb3c6,#ff8fab);
+  --theme-btn-shadow: rgba(220,100,130,0.28);
+  --theme-header-bg: rgba(255,182,198,0.55);
+  --theme-accent: #c03060;
+  --theme-search-icon: #e8607a;
+  --theme-back-color: #e8607a;
+}
 
-/* Icon sphere หน้าหลัก แยกตาม id */
-#view-dashboard .menu-card:nth-child(1) .icon-sphere { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
-#view-dashboard .menu-card:nth-child(2) .icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
-#view-dashboard .menu-card:nth-child(3) .icon-sphere { background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0; }
-#view-dashboard .menu-card:nth-child(4) .icon-sphere { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
+body.theme-stock {
+  --theme-bg1: #ffc8d8; --theme-bg2: #fff0f3; --theme-bg3: #ffe8d6;
+  --theme-icon-bg: linear-gradient(145deg,#ffdde6,#ffb8cc);
+  --theme-icon-color: #c03060;
+  --theme-btn-bg: linear-gradient(135deg,#ffb3c6,#ff8fab);
+  --theme-btn-shadow: rgba(220,100,130,0.28);
+  --theme-header-bg: linear-gradient(135deg,rgba(255,160,185,0.75),rgba(255,182,198,0.55));
+  --theme-accent: #c03060;
+  --theme-search-icon: #e8607a;
+  --theme-back-color: #e8607a;
+}
 
-/* Icon sphere theme page */
-body.theme-import .icon-sphere { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
-body.theme-pos    .icon-sphere { background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0; }
-body.theme-report .icon-sphere { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
-body.theme-stock  .icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
+body.theme-import {
+  --theme-bg1: #c8f0dc; --theme-bg2: #f0fff6; --theme-bg3: #e8ffd6;
+  --theme-icon-bg: linear-gradient(145deg,#d8fef0,#b0f0d4);
+  --theme-icon-color: #188055;
+  --theme-btn-bg: linear-gradient(135deg,#b0f0d4,#80e0b8);
+  --theme-btn-shadow: rgba(30,160,100,0.28);
+  --theme-header-bg: linear-gradient(135deg,rgba(140,220,180,0.75),rgba(182,240,210,0.55));
+  --theme-accent: #188055;
+  --theme-search-icon: #188055;
+  --theme-back-color: #188055;
+}
+
+body.theme-pos {
+  --theme-bg1: #b8d4ff; --theme-bg2: #f0f4ff; --theme-bg3: #e8f0ff;
+  --theme-icon-bg: linear-gradient(145deg,#daeeff,#b8dcff);
+  --theme-icon-color: #2878c0;
+  --theme-btn-bg: linear-gradient(135deg,#b8dcff,#90c4f0);
+  --theme-btn-shadow: rgba(40,120,200,0.28);
+  --theme-header-bg: linear-gradient(135deg,rgba(140,180,255,0.75),rgba(182,220,255,0.55));
+  --theme-accent: #2878c0;
+  --theme-search-icon: #2878c0;
+  --theme-back-color: #2878c0;
+}
+
+body.theme-report {
+  --theme-bg1: #ffe8a0; --theme-bg2: #fffaf0; --theme-bg3: #fff0c8;
+  --theme-icon-bg: linear-gradient(145deg,#fff3cc,#ffde80);
+  --theme-icon-color: #b06010;
+  --theme-btn-bg: linear-gradient(135deg,#ffde80,#ffc840);
+  --theme-btn-shadow: rgba(180,100,20,0.28);
+  --theme-header-bg: linear-gradient(135deg,rgba(255,210,80,0.75),rgba(255,230,150,0.55));
+  --theme-accent: #b06010;
+  --theme-search-icon: #b06010;
+  --theme-back-color: #b06010;
+}
+
+/* Apply theme variables */
+body {
+  background: linear-gradient(160deg, var(--theme-bg1) 0%, var(--theme-bg2) 45%, var(--theme-bg3) 100%) fixed;
+}
+
+.header-section { background: var(--theme-header-bg); }
+
+.icon-sphere {
+  background: var(--theme-icon-bg);
+  color: var(--theme-icon-color);
+}
+
+.item-btn {
+  background: var(--theme-btn-bg);
+  box-shadow: 0 3px 10px var(--theme-btn-shadow);
+}
+
+.upload-btn {
+  background: var(--theme-btn-bg);
+  box-shadow: 0 4px 16px var(--theme-btn-shadow);
+}
+
+.save-btn {
+  background: var(--theme-btn-bg);
+  box-shadow: 0 4px 14px var(--theme-btn-shadow);
+}
+
+.search-box i { color: var(--theme-search-icon); }
+.back-btn { color: var(--theme-back-color); }
+.reload-btn { color: white; }
+
+/* Dashboard icon แยกตามเมนู */
+#view-dashboard .menu-card:nth-child(1) .icon-sphere {
+  background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055;
+}
+#view-dashboard .menu-card:nth-child(2) .icon-sphere {
+  background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060;
+}
+#view-dashboard .menu-card:nth-child(3) .icon-sphere {
+  background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0;
+}
+#view-dashboard .menu-card:nth-child(4) .icon-sphere {
+  background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010;
+}
 
 /* ===== PAGE HEADER ===== */
 .page-header {
