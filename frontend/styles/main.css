@@ -751,6 +751,14 @@ input[type="file"] { display: none; }
   font-weight: 500;
 }
 
+.col-count {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-accent);
+  text-align: center;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width: 480px) {
   .menu-grid { gap: 16px; }
