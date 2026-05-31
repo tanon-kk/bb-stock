@@ -243,8 +243,11 @@ body.theme-report { background: linear-gradient(160deg,#ffe8a0 0%,#ffe8a0 100%) 
 .icon-sphere.emerald { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
 .icon-sphere.amber   { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
 
-/* Icon sphere default */
-.icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
+/* Icon sphere หน้าหลัก แยกตาม id */
+#view-dashboard .menu-card:nth-child(1) .icon-sphere { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
+#view-dashboard .menu-card:nth-child(2) .icon-sphere { background: linear-gradient(145deg,#ffdde6,#ffb8cc); color:#c03060; }
+#view-dashboard .menu-card:nth-child(3) .icon-sphere { background: linear-gradient(145deg,#daeeff,#b8dcff); color:#2878c0; }
+#view-dashboard .menu-card:nth-child(4) .icon-sphere { background: linear-gradient(145deg,#fff3cc,#ffde80); color:#b06010; }
 
 /* Icon sphere theme page */
 body.theme-import .icon-sphere { background: linear-gradient(145deg,#d8fef0,#b0f0d4); color:#188055; }
