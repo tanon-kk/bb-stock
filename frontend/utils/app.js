@@ -188,8 +188,6 @@ function renderList(type) {
     listEl.innerHTML = '<p class="empty-state">ยังไม่มีรายการสินค้า<br>กรุณากด "เพิ่มรายการสินค้า" ก่อนครับ</p>';
     return;
   }
-  const countEl = document.getElementById(type + '-count');
-    if (countEl) countEl.textContent = `ทั้งหมด ${allProducts.length} รายการ`;
 
   const session = getSessionData();
 
