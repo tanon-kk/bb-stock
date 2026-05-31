@@ -127,6 +127,7 @@ body {
   z-index: 100;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
   transition: background 0.3s ease;
+  border-radius: 0 0 24px 24px;
 }
 
 .header-content {
