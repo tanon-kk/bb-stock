@@ -13,224 +13,230 @@
 </head>
 <body>
 
-  <div class="app-container">
+<div class="app-container">
 
-    <!-- Header -->
-    <header class="header-section">
-      <div class="header-content">
-        <div class="brand-box" onclick="navigateTo('dashboard')">
-          <div class="logo-wrap">
-            <img 
-              src="https://lh3.googleusercontent.com/d/1QQTrC7dvyOEbuDOmkAEKX9J66kEVwSJ4" 
-              alt="logo" 
-              class="store-logo"
-              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
-            <div class="logo-fallback" id="logo-fb">🧋</div>
-          </div>
-          <div class="brand-text">
-            <h1>BiiBim Stock</h1>
-            <p>Expert Retail Company Limited</p>
-          </div>
+  <header class="header-section">
+    <div class="header-content">
+      <div class="brand-box" onclick="navigateTo('dashboard')">
+        <div class="logo-wrap">
+          <img
+            src="https://lh3.googleusercontent.com/d/1QQTrC7dvyOEbuDOmkAEKX9J66kEVwSJ4"
+            alt="BiiBim Stock Logo"
+            class="store-logo"
+            onerror="this.style.display='none'; document.getElementById('logo-fb').style.display='flex'">
+          <div class="logo-fallback" id="logo-fb">🧋</div>
         </div>
-        <button class="reload-btn" onclick="navigateTo('dashboard')">
-          <i class="fa-solid fa-rotate-right"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- Content -->
-    <main class="content-area">
-
-      <!-- Dashboard -->
-      <div id="view-dashboard" class="page-view active">
-        <div class="greeting-bar">
-          <p class="greeting-date" id="current-date"></p>
-          <p class="greeting-name">Hello Baby 👋</p>
-        </div>
-        <div class="menu-grid">
-          <div class="menu-card" onclick="navigateTo('import')">
-            <div class="icon-sphere">
-              <i class="fa-solid fa-file-arrow-up"></i>
-            </div>
-            <span>เพิ่มรายการสินค้า</span>
-          </div>
-          <div class="menu-card" onclick="navigateTo('stock')">
-            <div class="icon-sphere">
-              <i class="fa-solid fa-boxes-stacked"></i>
-            </div>
-            <span>สต็อกสินค้า</span>
-          </div>
-          <div class="menu-card" onclick="navigateTo('pos')">
-            <div class="icon-sphere">
-              <i class="fa-solid fa-cash-register"></i>
-            </div>
-            <span>สินค้าระบบ POS</span>
-          </div>
-          <div class="menu-card" onclick="navigateTo('report')">
-            <div class="icon-sphere">
-              <i class="fa-solid fa-folder-open"></i>
-            </div>
-            <span>รายงาน</span>
-          </div>
+        <div class="brand-text">
+          <h1>BiiBim Stock</h1>
+          <p>Expert Retail Company Limited</p>
         </div>
       </div>
-
-      <!-- Import -->
-      <div id="view-import" class="page-view">
-        <div class="page-header">
-          <button class="back-btn" onclick="navigateTo('dashboard')">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="page-title-wrap">
-            <div class="icon-sphere sm"><i class="fa-solid fa-file-arrow-up"></i></div>
-            <h2>เพิ่มรายการสินค้า</h2>
-          </div>
-        </div>
-        <div class="upload-card">
-          <div class="upload-icon-big">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-          </div>
-          <p class="upload-desc">อัพโหลดไฟล์สต็อคสินค้า<br>(.xlsx .xls .xlsm .csv)</p>
-          <label class="upload-btn" for="fileInput">
-            <i class="fa-solid fa-file-arrow-up"></i> เลือกไฟล์ Excel
-          </label>
-          <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.ods" onchange="handleFileSelect(this)">
-          <div id="file-preview" class="file-preview hidden">
-            <div class="file-info">
-              <i class="fa-solid fa-file-excel"></i>
-              <div>
-                <p id="file-name"></p>
-                <p id="file-count"></p>
-              </div>
-            </div>
-            <div class="preview-actions">
-              <button class="confirm-btn" onclick="confirmUpload()">
-                <i class="fa-solid fa-check"></i> ยืนยัน
-              </button>
-              <button class="cancel-btn" onclick="cancelUpload()">
-                <i class="fa-solid fa-xmark"></i> ยกเลิก
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stock -->
-      <div id="view-stock" class="page-view">
-        <div class="page-header">
-          <button class="back-btn" onclick="navigateTo('dashboard')">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="page-title-wrap">
-            <div class="icon-sphere sm"><i class="fa-solid fa-boxes-stacked"></i></div>
-            <h2>สต็อกสินค้า</h2>
-          </div>
-        </div>
-        <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="stock-search" placeholder="ค้นหาสินค้า..." oninput="filterList('stock', this.value)">
-        </div>
-        <div class="table-header">
-          <span class="col-no">ลำดับ</span>
-          <span class="col-name">รายการสินค้า</span>
-          <span class="col-action">บันทึก</span>
-        </div>
-        <div id="stock-list" class="items-list"></div>
-      </div>
-
-      <!-- POS -->
-      <div id="view-pos" class="page-view">
-        <div class="page-header">
-          <button class="back-btn" onclick="navigateTo('dashboard')">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="page-title-wrap">
-            <div class="icon-sphere sm"><i class="fa-solid fa-cash-register"></i></div>
-            <h2>สินค้าระบบ POS</h2>
-          </div>
-        </div>
-        <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="pos-search" placeholder="ค้นหาสินค้า..." oninput="filterList('pos', this.value)">
-        </div>
-        <div class="table-header">
-          <span class="col-no">ลำดับ</span>
-          <span class="col-name">รายการสินค้า</span>
-          <span class="col-action">บันทึก</span>
-        </div>
-        <div id="pos-list" class="items-list"></div>
-      </div>
-
-      <!-- Report -->
-      <div id="view-report" class="page-view">
-        <div class="page-header">
-          <button class="back-btn" onclick="navigateTo('dashboard')">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="page-title-wrap">
-            <div class="icon-sphere sm"><i class="fa-solid fa-folder-open"></i></div>
-            <h2>รายงาน</h2>
-          </div>
-        </div>
-        <div id="report-content" class="report-content">
-          <p class="empty-state">ยังไม่มีข้อมูลรายงานครับ</p>
-        </div>
-      </div>
-
-    </main>
-
-    <footer class="app-footer">PROFESSIONAL PRODUCTION VER 1.0</footer>
-
-  </div>
-
-<!-- Entry Modal -->
-  <div id="entry-modal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <div class="modal-handle"></div>
-      <div class="modal-title" id="modal-title">ชื่อสินค้า</div>
-      <div class="modal-subtitle" id="modal-subtitle">บันทึกสต็อกสินค้า</div>
-      <div class="unit-inputs">
-        <div class="unit-group" id="group-u1">
-          <div class="unit-label" id="label-u1">หน่วย 1</div>
-          <input class="unit-input" id="input-u1" type="number" min="0" placeholder="0">
-        </div>
-        <div class="unit-group" id="group-u2">
-          <div class="unit-label" id="label-u2">หน่วย 2</div>
-          <input class="unit-input" id="input-u2" type="number" min="0" placeholder="0">
-        </div>
-        <div class="unit-group" id="group-u3">
-          <div class="unit-label" id="label-u3">หน่วย 3</div>
-          <input class="unit-input" id="input-u3" placeholder="0 หรือ 2/5">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="save-btn" onclick="saveEntry()">
-          <i class="fa-solid fa-check"></i> บันทึก
-        </button>
-        <button class="close-btn" onclick="closeEntry()">
-          ยกเลิก
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Upload Popup -->
-  <div id="upload-popup" class="popup-overlay hidden">
-    <div class="popup-box">
-      <div class="popup-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-      <h3>กำลังอัพโหลด...</h3>
-      <div class="progress-bar-wrap">
-        <div id="progress-bar" class="progress-bar-fill"></div>
-      </div>
-      <p id="progress-text">0%</p>
-      <button class="cancel-popup-btn" onclick="cancelPopup()">
-        <i class="fa-solid fa-xmark"></i> ยกเลิก
+      <button class="reload-btn" onclick="navigateTo('dashboard')" aria-label="กลับหน้าหลัก">
+        <i class="fa-solid fa-rotate-right"></i>
       </button>
     </div>
-  </div>
+  </header>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="utils/app.js"></script>
+  <main class="content-area">
+
+    <!-- หน้าหลัก -->
+    <div id="view-dashboard" class="page-view active">
+      <div class="greeting-bar">
+        <p class="greeting-date" id="current-date"></p>
+        <p class="greeting-name">สวัสดีครับ 👋</p>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="navigateTo('import')">
+          <div class="icon-sphere">
+            <i class="fa-solid fa-file-arrow-up"></i>
+          </div>
+          <span>เพิ่มรายการสินค้า</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('stock')">
+          <div class="icon-sphere">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <span>สต็อกสินค้า</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('pos')">
+          <div class="icon-sphere">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <span>สินค้าระบบ POS</span>
+        </div>
+        <div class="menu-card" onclick="navigateTo('report')">
+          <div class="icon-sphere">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <span>รายงาน</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- เพิ่มรายการสินค้า -->
+    <div id="view-import" class="page-view">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')" aria-label="ย้อนกลับ">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="page-title-wrap">
+          <div class="icon-sphere sm"><i class="fa-solid fa-file-arrow-up"></i></div>
+          <h2>เพิ่มรายการสินค้า</h2>
+        </div>
+      </div>
+      <div class="upload-card">
+        <div class="upload-icon-big">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <p class="upload-desc">อัพโหลดไฟล์สต็อคสินค้า<br>(.xlsx .xls .xlsm .csv)</p>
+        <label class="upload-btn" for="fileInput">
+          <i class="fa-solid fa-file-arrow-up"></i> เลือกไฟล์ Excel
+        </label>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.ods" onchange="handleFileSelect(this)">
+        <div id="file-preview" class="file-preview hidden">
+          <div class="file-info">
+            <i class="fa-solid fa-file-excel"></i>
+            <div>
+              <p id="file-name"></p>
+              <p id="file-count"></p>
+            </div>
+          </div>
+          <div class="preview-actions">
+            <button class="confirm-btn" onclick="confirmUpload()">
+              <i class="fa-solid fa-check"></i> ยืนยัน
+            </button>
+            <button class="cancel-btn" onclick="cancelUpload()">
+              <i class="fa-solid fa-xmark"></i> ยกเลิก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- สต็อกสินค้า -->
+    <div id="view-stock" class="page-view">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')" aria-label="ย้อนกลับ">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="page-title-wrap">
+          <div class="icon-sphere sm"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <h2>สต็อกสินค้า</h2>
+        </div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-total">📦 ทั้งหมด <b id="stock-total">0</b> รายการ</span>
+        <span class="summary-saved">✓ บันทึกแล้ว <b id="stock-saved">0</b> รายการ</span>
+      </div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="stock-search" placeholder="ค้นหาสินค้า..." oninput="filterList('stock', this.value)">
+      </div>
+      <div class="table-header">
+        <span class="col-no">ลำดับ</span>
+        <span class="col-name">รายการสินค้า</span>
+        <span id="stock-count" class="col-count"></span>
+        <span class="col-action">บันทึก</span>
+      </div>
+      <div id="stock-list" class="items-list"></div>
+    </div>
+
+    <!-- สินค้าระบบ POS -->
+    <div id="view-pos" class="page-view">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')" aria-label="ย้อนกลับ">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="page-title-wrap">
+          <div class="icon-sphere sm"><i class="fa-solid fa-cash-register"></i></div>
+          <h2>สินค้าระบบ POS</h2>
+        </div>
+      </div>
+      <div class="summary-bar">
+        <span class="summary-total">🖥️ ทั้งหมด <b id="pos-total">0</b> รายการ</span>
+        <span class="summary-saved">✓ บันทึกแล้ว <b id="pos-saved">0</b> รายการ</span>
+      </div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="pos-search" placeholder="ค้นหาสินค้า..." oninput="filterList('pos', this.value)">
+      </div>
+      <div class="table-header">
+        <span class="col-no">ลำดับ</span>
+        <span class="col-name">รายการสินค้า</span>
+        <span id="pos-count" class="col-count"></span>
+        <span class="col-action">บันทึก</span>
+      </div>
+      <div id="pos-list" class="items-list"></div>
+    </div>
+
+    <!-- รายงาน -->
+    <div id="view-report" class="page-view">
+      <div class="page-header">
+        <button class="back-btn" onclick="navigateTo('dashboard')" aria-label="ย้อนกลับ">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="page-title-wrap">
+          <div class="icon-sphere sm"><i class="fa-solid fa-folder-open"></i></div>
+          <h2>รายงาน</h2>
+        </div>
+      </div>
+      <div id="report-content" class="report-content">
+        <p class="empty-state">ยังไม่มีข้อมูลรายงานครับ</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">PROFESSIONAL PRODUCTION VER 1.0</footer>
+
+</div>
+
+<!-- Modal กรอกจำนวน -->
+<div id="entry-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-subtitle" id="modal-subtitle"></div>
+    <div class="unit-inputs">
+      <div class="unit-group" id="group-u1">
+        <div class="unit-label" id="label-u1">หน่วย 1</div>
+        <input class="unit-input" id="input-u1" type="number" min="0" placeholder="0">
+      </div>
+      <div class="unit-group" id="group-u2">
+        <div class="unit-label" id="label-u2">หน่วย 2</div>
+        <input class="unit-input" id="input-u2" type="number" min="0" placeholder="0">
+      </div>
+      <div class="unit-group" id="group-u3">
+        <div class="unit-label" id="label-u3">หน่วย 3</div>
+        <input class="unit-input" id="input-u3" placeholder="0 หรือ 2/5">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="save-btn" onclick="saveEntry()">
+        <i class="fa-solid fa-check"></i> บันทึก
+      </button>
+      <button class="close-btn" onclick="closeEntry()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup อัพโหลด -->
+<div id="upload-popup" class="popup-overlay hidden">
+  <div class="popup-box">
+    <div class="popup-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+    <h3>กำลังอัพโหลด...</h3>
+    <div class="progress-bar-wrap">
+      <div id="progress-bar" class="progress-bar-fill"></div>
+    </div>
+    <p id="progress-text">0%</p>
+    <button class="cancel-popup-btn" onclick="cancelPopup()">
+      <i class="fa-solid fa-xmark"></i> ยกเลิก
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="utils/app.js"></script>
 
 </body>
 </html>
