@@ -13,6 +13,7 @@ function navigateTo(page) {
 
   if (page === 'stock') renderList('stock');
   if (page === 'pos')   renderList('pos');
+  if (page === 'report') loadReport();
 }
 
 function setTheme(page) {
@@ -403,6 +404,153 @@ function showToast(msg) {
   toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
 }
 
+// ============================================================
+// REPORT
+// ============================================================
+
+function loadReport() {
+  const session  = getSession();
+  const stock    = getProducts('stock');
+  const consumable = getProducts('consumable');
+
+  let seq = 0;
+  const allProducts = [
+    ...stock.map(p      => ({ ...p, groupType: 'stock',      seq: ++seq })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable', seq: ++seq })),
+  ];
+
+  const reportEl = document.getElementById('report-content');
+  if (!reportEl) return;
+
+  // แยก stock และ pos จาก session
+  const stockSaved = [];
+  const posSaved   = [];
+
+  allProducts.forEach(p => {
+    const stockKey = `stock_${p.groupType}_${p.id}`;
+    const posKey   = `pos_${p.groupType}_${p.id}`;
+
+    if (session[stockKey]) stockSaved.push({ ...p, ...session[stockKey] });
+    if (session[posKey])   posSaved.push({ ...p, ...session[posKey] });
+  });
+
+  if (!stockSaved.length && !posSaved.length) {
+    reportEl.innerHTML = '<p class="empty-state">ยังไม่มีข้อมูล<br>กรุณานับสต็อกก่อนครับ</p>';
+    return;
+  }
+
+  // เลือกเดือนและปี
+  const now     = new Date();
+  const months  = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const month   = months[now.getMonth()];
+  const year    = now.getFullYear() + 543;
+
+  reportEl.innerHTML = `
+    <div class="report-summary">
+      <div class="report-period">
+        <i class="fa-solid fa-calendar"></i>
+        <span>${month} ${year}</span>
+      </div>
+      <div class="report-stats">
+        <div class="stat-item">
+          <b>${stockSaved.length}</b>
+          <span>สต็อกที่บันทึก</span>
+        </div>
+        <div class="stat-item">
+          <b>${posSaved.length}</b>
+          <span>POS ที่บันทึก</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">📦 สต็อกสินค้า (${stockSaved.length} รายการ)</div>
+      ${stockSaved.map((p, i) => reportItemHTML(p, i + 1, 'stock')).join('')}
+    </div>
+
+    ${posSaved.length ? `
+    <div class="report-section">
+      <div class="report-section-title">🖥️ สินค้าระบบ POS (${posSaved.length} รายการ)</div>
+      ${posSaved.map((p, i) => reportItemHTML(p, i + 1, 'pos')).join('')}
+    </div>` : ''}
+
+    <div class="report-actions">
+      <button class="save-to-sheet-btn" onclick="saveToGoogleSheet('${month}', '${year}')">
+        <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกลง Google Sheet
+      </button>
+      <button class="clear-report-btn" onclick="clearReport()">
+        <i class="fa-solid fa-trash"></i> ล้างข้อมูล
+      </button>
+    </div>
+  `;
+}
+
+function reportItemHTML(p, seq, type) {
+  const parts = [];
+  if (p.v1) parts.push(`${p.v1} ${p.unit1}`);
+  if (p.v2) parts.push(`${p.v2} ${p.unit2}`);
+  if (p.v3) parts.push(`${p.v3} ${p.unit3}`);
+
+  return `
+    <div class="report-item">
+      <span class="report-item-no">${seq}</span>
+      <div class="report-item-detail">
+        <span class="report-item-name">${p.name}</span>
+        <span class="report-item-qty">${parts.join(' | ') || '-'}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function saveToGoogleSheet(month, year) {
+  const session    = getSession();
+  const stock      = getProducts('stock');
+  const consumable = getProducts('consumable');
+
+  let seq = 0;
+  const allProducts = [
+    ...stock.map(p      => ({ ...p, groupType: 'stock',      seq: ++seq })),
+    ...consumable.map(p => ({ ...p, groupType: 'consumable', seq: ++seq })),
+  ];
+
+  const stockData = [];
+  const posData   = [];
+
+  allProducts.forEach(p => {
+    const s = session[`stock_${p.groupType}_${p.id}`];
+    const ps = session[`pos_${p.groupType}_${p.id}`];
+    if (s)  stockData.push({ ...p, ...s });
+    if (ps) posData.push({ ...p, ...ps });
+  });
+
+  try {
+    showToast('⏳ กำลังบันทึกลง Google Sheet...');
+
+    const res = await fetch('/api/report/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month, year, stockData, posData }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast(`✅ บันทึกลง Sheet "${data.sheetName}" สำเร็จครับ!`);
+    } else {
+      showToast('❌ เกิดข้อผิดพลาด: ' + data.error);
+    }
+  } catch (err) {
+    showToast('❌ เชื่อมต่อ server ไม่ได้ครับ');
+  }
+}
+
+function clearReport() {
+  if (!confirm('ต้องการล้างข้อมูลทั้งหมดไหมครับ?')) return;
+  localStorage.removeItem('bb_session');
+  showToast('🗑️ ล้างข้อมูลแล้วครับ');
+  loadReport();
+}
 
 // ============================================================
 // INIT

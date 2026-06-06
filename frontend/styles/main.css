@@ -912,6 +912,161 @@ input[type="file"] {
   font-weight: 500;
 }
 
+/* ============================================================
+   REPORT PAGE
+   ============================================================ */
+
+.report-summary {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.report-period {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--theme-text);
+  margin-bottom: 12px;
+}
+
+.report-period i {
+  color: var(--theme-accent);
+}
+
+.report-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-item {
+  flex: 1;
+  background: rgba(255,255,255,0.50);
+  border-radius: var(--radius-input);
+  padding: 10px;
+  text-align: center;
+}
+
+.stat-item b {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--theme-accent);
+}
+
+.stat-item span {
+  font-size: 11px;
+  color: var(--theme-text-sub);
+}
+
+.report-section {
+  margin-bottom: 16px;
+}
+
+.report-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--theme-text);
+  padding: 8px 4px;
+  margin-bottom: 8px;
+  border-bottom: 1.5px solid rgba(255,255,255,0.60);
+}
+
+.report-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.report-item-no {
+  width: 28px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--theme-text-sub);
+  flex-shrink: 0;
+}
+
+.report-item-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.report-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--theme-text);
+}
+
+.report-item-qty {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-accent);
+}
+
+.report-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-to-sheet-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--theme-btn-bg);
+  color: white;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--theme-btn-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s ease;
+}
+
+.save-to-sheet-btn:active {
+  transform: scale(0.97);
+}
+
+.clear-report-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-btn);
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.55);
+  color: var(--theme-text-sub);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 
 /* ============================================================
    RESPONSIVE
