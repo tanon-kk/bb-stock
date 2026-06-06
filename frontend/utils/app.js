@@ -356,6 +356,7 @@ function saveEntry() {
   closeEntry();
   showToast('✅ บันทึก ' + currentEntry.name + ' แล้วครับ');
   renderList(currentEntry.type);
+  updateSummary(currentEntry.type, buildProductList());
 }
 
 function parseVal(val) {
